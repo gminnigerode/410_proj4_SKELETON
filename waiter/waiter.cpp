@@ -27,8 +27,8 @@ int Waiter::getNext(ORDER &anOrder){
 //when finished exits loop and signals baker(s) using cv_order_inQ that
 //it is done using b_WaiterIsFinished
 void Waiter::beWaiter() {
-	int ordersLeft;
-	while(ordersLeft != NO_ORDERS){
+	int ordersLeft = 0;
+	while(ordersLeft != NO_ORDERS && ordersLeft != FAIL){
 		ORDER currentOrder;
 		ordersLeft = getNext(currentOrder);
 		order_in_Q.push(currentOrder);
