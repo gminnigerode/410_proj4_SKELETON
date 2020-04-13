@@ -1,7 +1,6 @@
 #include "../includes/logger.h"
 using namespace std;
 
-mutex mtx;
 Logger::Logger(std::string filename) {
 	this->filename = filename;
 }
@@ -24,7 +23,7 @@ void Logger::log(std::string data) {
 		return;
 
 	{
-	lock_guard<mutex> lg(mtx);
+	lock_guard<mutex> lg(m);
 	std::string myline;
 
 	myFile << data;
