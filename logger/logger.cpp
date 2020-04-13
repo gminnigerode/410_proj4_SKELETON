@@ -1,6 +1,7 @@
 #include "../includes/logger.h"
 using namespace std;
 
+mutex mtx;
 Logger::Logger(std::string filename) {
 	this->filename = filename;
 }
@@ -22,10 +23,12 @@ void Logger::log(std::string data) {
 	if (!myFile.is_open())
 		return;
 
+	{
+	lock_guard<mutex> lg(mtx);
 	std::string myline;
 
 	myFile << data;
-
+	}
 	//close file
 	if (myFile.is_open())
 		myFile.close();

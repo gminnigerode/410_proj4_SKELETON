@@ -26,6 +26,7 @@ void Baker::bake_and_box(ORDER &anOrder) {
 		}
 		anOrder.boxes.push_back(boo);
 	}
+	order_out_Vector.push_back(anOrder);
 }
 
 //as long as there are orders in order_in_Q then
