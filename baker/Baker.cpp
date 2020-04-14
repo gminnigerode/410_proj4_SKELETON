@@ -31,6 +31,7 @@ void Baker::bake_and_box(ORDER &anOrder) {
 	for(Box b: anOrder.boxes){
 		anOrder.number_donuts += b.size();
 	}
+	PRINT2("Order completed by ", id);
 	order_out_Vector.push_back(anOrder);
 }
 
@@ -53,14 +54,19 @@ void Baker::beBaker() {
 			}
 		}
 		while(!order_in_Q.empty()){
+			ORDER nextOrder;
+			nextOrder.order_number = -7;
 			{
 				lock_guard<mutex> lg(mtx);
 				if(order_in_Q.size() != 0){
-					bake_and_box(order_in_Q.front());
+					nextOrder = order_in_Q.front();
 					order_in_Q.pop();
 				}
 			}
-			this_thread::sleep_for(chrono::milliseconds(50));
+			if(nextOrder.order_number != -7){
+				bake_and_box(nextOrder);
+			}
+
 		}
 	}
 }
