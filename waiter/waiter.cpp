@@ -1,4 +1,5 @@
 #include <string>
+#include <thread>
 #include "stdlib.h"
 
 #include "../includes/waiter.h"
@@ -27,12 +28,15 @@ int Waiter::getNext(ORDER &anOrder){
 //when finished exits loop and signals baker(s) using cv_order_inQ that
 //it is done using b_WaiterIsFinished
 void Waiter::beWaiter() {
+	this_thread::sleep_for(chrono::milliseconds(1000));
 	int ordersLeft = 0;
 	while(ordersLeft != NO_ORDERS && ordersLeft != FAIL){
 		ORDER currentOrder;
 		ordersLeft = getNext(currentOrder);
-		order_in_Q.push(currentOrder);
-		cv_order_inQ.notify_all();
+		if(ordersLeft != NO_ORDERS){
+			order_in_Q.push(currentOrder);
+			cv_order_inQ.notify_all();
+		}
 	}
 	b_WaiterIsFinished = true;
 }

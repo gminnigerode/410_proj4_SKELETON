@@ -86,8 +86,15 @@ void audit_results() {
 
 int main()
 {
-	doWaiter(0, "in1.txt");
-	doBaker(0);
+	vector<thread> threads;
+	threads.push_back(thread(doBaker, 0));
+	threads.push_back(thread(doBaker, 1));
+	threads.push_back(thread(doBaker, 2));
+	threads.push_back(thread(doBaker, 3));
+	threads.push_back(thread(doWaiter, 0, "in3.txt"));
+	for(auto& t: threads){
+		t.join();
+	}
 	audit_results();
 	return SUCCESS;
 }

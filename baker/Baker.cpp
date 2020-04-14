@@ -1,6 +1,8 @@
 #include <mutex>
+#include <thread>
 #include "../includes/baker.h"
 #include "../includes/externs.h"
+#include "../includes/PRINT.h"
 using namespace std;
 
 mutex mtx;
@@ -19,12 +21,15 @@ Baker::~Baker()
 void Baker::bake_and_box(ORDER &anOrder) {
 	while(anOrder.number_donuts != 0){
 		Box boo;
-		while (boo.size() != 12 || anOrder.number_donuts != 0){
+		while (boo.size() != 12 && anOrder.number_donuts != 0){
 			DONUT doo;
 			boo.addDonut(doo);
 			anOrder.number_donuts -= 1;
 		}
 		anOrder.boxes.push_back(boo);
+	}
+	for(Box b: anOrder.boxes){
+		anOrder.number_donuts += b.size();
 	}
 	order_out_Vector.push_back(anOrder);
 }
@@ -40,14 +45,22 @@ void Baker::bake_and_box(ORDER &anOrder) {
 //when either order_in_Q.size() > 0 or b_WaiterIsFinished == true
 //hint: wait for something to be in order_in_Q or b_WaiterIsFinished == true
 void Baker::beBaker() {
-	unique_lock<mutex> lck(mtx);
 	while(!b_WaiterIsFinished){
-		while (order_in_Q.size() == 0 || !b_WaiterIsFinished){
-			cv_order_inQ.wait(lck);
+		{
+			unique_lock<mutex> lck(mtx);
+			while (order_in_Q.size() == 0 && !b_WaiterIsFinished){
+				cv_order_inQ.wait(lck);
+			}
 		}
-		while(order_in_Q.size() != 0){
-			bake_and_box(order_in_Q.front());
-			order_in_Q.pop();
+		while(!order_in_Q.empty()){
+			{
+				lock_guard<mutex> lg(mtx);
+				if(order_in_Q.size() != 0){
+					bake_and_box(order_in_Q.front());
+					order_in_Q.pop();
+				}
+			}
+			this_thread::sleep_for(chrono::milliseconds(50));
 		}
 	}
 }
