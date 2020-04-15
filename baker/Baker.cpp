@@ -33,7 +33,6 @@ void Baker::bake_and_box(ORDER &anOrder) {
 	}
 	{
 		lock_guard<mutex> lg(mtx);
-		PRINT2("Order completed by ", id);
 		order_out_Vector.push_back(anOrder);
 	}
 }

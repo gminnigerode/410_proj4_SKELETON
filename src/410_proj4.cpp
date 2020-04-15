@@ -12,6 +12,7 @@
 #include "../includes/baker.h"
 #include "../includes/datastructs.h"
 #include "../includes/PRINT.h"
+#include "../includes/logger.h"
 
 using namespace std;
 
@@ -84,6 +85,16 @@ void audit_results() {
 	PRINT2("Total orders filled = ", total_orders);
 }
 
+void doLogger(string filename){
+	Logger l(filename);
+	l.log("WEll Dang \n");
+}
+
+void undoLogger(string filename){
+	Logger l(filename);
+	l.clearlogfile();
+}
+
 int main()
 {
 	vector<thread> threads;
@@ -96,6 +107,22 @@ int main()
 		t.join();
 	}
 	audit_results();
+	vector<thread> threads2;
+	threads2.push_back(thread(doLogger, DEFAULT_LOG_FILE));
+	threads2.push_back(thread(doLogger, DEFAULT_LOG_FILE));
+	threads2.push_back(thread(doLogger, DEFAULT_LOG_FILE));
+	threads2.push_back(thread(doLogger, DEFAULT_LOG_FILE));
+	for(auto& t: threads2){
+		t.join();
+	}
+	vector<thread> threads3;
+	threads3.push_back(thread(undoLogger, DEFAULT_LOG_FILE));
+	threads3.push_back(thread(doLogger, DEFAULT_LOG_FILE));
+	threads3.push_back(thread(undoLogger, DEFAULT_LOG_FILE));
+	threads3.push_back(thread(doLogger, DEFAULT_LOG_FILE));
+	for(auto& t: threads3){
+		t.join();
+	}
 	return SUCCESS;
 }
 
