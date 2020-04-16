@@ -31,10 +31,6 @@ void Baker::bake_and_box(ORDER &anOrder) {
 	for(Box b: anOrder.boxes){
 		anOrder.number_donuts += b.size();
 	}
-	{
-		lock_guard<mutex> lg(mtx);
-		order_out_Vector.push_back(anOrder);
-	}
 }
 
 //as long as there are orders in order_in_Q then
@@ -67,8 +63,12 @@ void Baker::beBaker() {
 			}
 			if(nextOrder.order_number != -7){
 				bake_and_box(nextOrder);
+				{
+					lock_guard<mutex> lg(mtx);
+					PRINT2("Order completed by ", id);
+					order_out_Vector.push_back(nextOrder);
+				}
 			}
-			this_thread::sleep_for(chrono::milliseconds(50));
 		}
 	}
 }
