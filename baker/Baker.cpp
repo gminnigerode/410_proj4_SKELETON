@@ -5,8 +5,6 @@
 #include "../includes/PRINT.h"
 using namespace std;
 
-mutex mtx;
-
 Baker::Baker(int id):id(id)
 {
 }
@@ -44,32 +42,21 @@ void Baker::bake_and_box(ORDER &anOrder) {
 //when either order_in_Q.size() > 0 or b_WaiterIsFinished == true
 //hint: wait for something to be in order_in_Q or b_WaiterIsFinished == true
 void Baker::beBaker() {
-	while(!b_WaiterIsFinished){
-		{
-			unique_lock<mutex> lck(mtx);
-			while (order_in_Q.size() == 0 && !b_WaiterIsFinished){
-				cv_order_inQ.wait(lck);
-			}
+	while(true){
+		unique_lock<mutex> lck(mutex_order_inQ);
+		while (order_in_Q.size() == 0 && !b_WaiterIsFinished){
+			cv_order_inQ.wait(lck);
 		}
-		while(!order_in_Q.empty()){
+		if(!order_in_Q.empty()){
 			ORDER nextOrder;
-			nextOrder.order_number = -7;
-			{
-				lock_guard<mutex> lg(mtx);
-				if(order_in_Q.size() != 0){
-					nextOrder = order_in_Q.front();
-					order_in_Q.pop();
-				}
-			}
-			if(nextOrder.order_number != -7){
-				bake_and_box(nextOrder);
-				{
-					lock_guard<mutex> lg(mtx);
-					PRINT2("Order completed by ", id);
-					order_out_Vector.push_back(nextOrder);
-				}
-			}
+			nextOrder = order_in_Q.front();
+			order_in_Q.pop();
+			bake_and_box(nextOrder);
+			lock_guard<mutex> lg(mutex_order_outQ);
+			order_out_Vector.push_back(nextOrder);
+		}
+		else if(b_WaiterIsFinished){
+			break;
 		}
 	}
 }
-//I hate my life

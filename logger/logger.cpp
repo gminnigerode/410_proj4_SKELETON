@@ -10,6 +10,7 @@ Logger::~Logger() {
 
 //open close and clear the log file
 void Logger::clearlogfile() {
+	lock_guard<mutex> lg(m);
 	myFile.open(filename, std::fstream::trunc);
 
 	//close file
@@ -18,16 +19,15 @@ void Logger::clearlogfile() {
 }
 
 void Logger::log(std::string data) {
+	lock_guard<mutex> lg(m);
 	myFile.open(filename, std::fstream::app);
 	if (!myFile.is_open())
 		return;
 
-	{
-	lock_guard<mutex> lg(m);
 	std::string myline;
 
 	myFile << data;
-	}
+
 	//close file
 	if (myFile.is_open())
 		myFile.close();
