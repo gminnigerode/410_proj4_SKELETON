@@ -8,28 +8,28 @@
 
 using namespace std;
 
+//Constructor for Waiter using given id that populates IO object myIO with given filename
 Waiter::Waiter(int id,std::string filename):id(id),myIO(filename){
 }
 
+//Waiter destructor
 Waiter::~Waiter()
 {
 }
 
-//gets next Order(s) from file_IO
-//if return == SUCCESS then anOrder
-//contains new order
-//otherwise return contains fileIO error
+//Gets next Order from file_IO by updating value of given order
+//If given order contains new order then return == SUCCESS
+//Otherwise return fileIO error (noOrder or FAIL)
 int Waiter::getNext(ORDER &anOrder){
 	return myIO.getNext(anOrder);
 }
 
-//contains a loop that will get orders from filename one at a time
-//then puts them in order_in_Q then signals baker(s) using cv_order_inQ
-//so they can be consumed by baker(s)
-//when finished exits loop and signals baker(s) using cv_order_inQ that
-//it is done using b_WaiterIsFinished
+//Main function for waiter that populates the order_in_Q with orders from filename
+//Each time an order is added to the queue all Baker threads are notified so that they can begin working
+//When all orders are processed b_WaiterIsFinished is set to true to notify bakers
 void Waiter::beWaiter() {
 	int ordersLeft = 0;
+	//iterates through orders using myIO until there are no orders left
 	while(ordersLeft != NO_ORDERS && ordersLeft != FAIL){
 		ORDER currentOrder;
 		ordersLeft = getNext(currentOrder);
@@ -42,6 +42,7 @@ void Waiter::beWaiter() {
 			cv_order_inQ.notify_all();
 		}
 	}
+	//all orders have been processed
 	b_WaiterIsFinished = true;
 	this_thread::sleep_for(chrono::milliseconds(100));
 	cv_order_inQ.notify_all();
