@@ -107,7 +107,7 @@ int main()
 		t.join();
 	}
 	audit_results();
-	/*vector<thread> threads2;
+	vector<thread> threads2;
 	threads2.push_back(thread(doLogger, DEFAULT_LOG_FILE));
 	threads2.push_back(thread(doLogger, DEFAULT_LOG_FILE));
 	threads2.push_back(thread(doLogger, DEFAULT_LOG_FILE));
@@ -122,7 +122,7 @@ int main()
 	threads3.push_back(thread(doLogger, DEFAULT_LOG_FILE));
 	for(auto& t: threads3){
 		t.join();
-	}*/
+	}
 	return SUCCESS;
 }
 
